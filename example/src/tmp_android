@@ -1,0 +1,92 @@
+import * as React from 'react';
+import { NativeEventEmitter, StyleSheet, View, Text, TouchableOpacity, PermissionsAndroid } from 'react-native';
+import Sensinggo from 'sensinggo';
+
+export default function App() {
+  const [result, setResult] = React.useState<number | undefined>();
+  
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: "Cool Photo App Camera Permission",
+          message:
+          "Cool Photo App needs access to your camera " +
+          "so you can take awesome pictures.",
+          buttonNeutral: "Ask Me Later",
+          buttonNegative: "Cancel",
+          buttonPositive: "OK"
+        }
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("You can use the camera");
+      } else {
+        console.log("Camera permission denied");
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  React.useEffect(() => {
+    Sensinggo.multiply(11, 9).then(setResult);
+  }, []);
+  // Sensinggo.getMagnetometer();
+  Sensinggo.start();
+  Sensinggo.WiFiInfo().then(function (fulfilled) {
+    console.log("ggg servingChan",fulfilled["servingChan"]);
+  })
+  .catch(function (error) {
+    console.log(error.message)
+  })
+  requestCameraPermission();
+  console.log("ggg ggg");
+  // console.log("yyyyyy", Sensinggo.getNerkType())
+  timesRun = 0;
+  first_= true;
+
+  let timer;
+
+  // Sensinggo.location();
+  timer = setInterval(() => { 
+    timesRun = timesRun+1;
+    console.log("gg_test_time_",timesRun);
+    if(timesRun == 10){
+      console.log("wwgg_test_time_clear",timesRun);
+      Sensinggo.send_();
+    }
+    first_=true;
+    start = Date.now();
+    const eventEmitter = new NativeEventEmitter(Sensinggo);
+    this.eventListener = eventEmitter.addListener('acc', (event) => {
+      // console.log("test_time_gg",event.X);
+      end = Date.now();
+      if(first_){
+        // console.log("test_time_gg",event.X);
+        first_=false;
+        // console.log("test_time_gg",(end-start));
+        Sensinggo.write_("time_time",(end-start)+"");
+        Sensinggo.stop();
+      }
+    });
+  }, 1000);
+     
+  setTimeout(()=>{
+    clearInterval(timer);
+    }, 100000);
+ 
+  return (
+    <View style={styles.container}>
+      <Text>Restyy: {result}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
